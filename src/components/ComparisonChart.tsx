@@ -20,6 +20,7 @@ import {
   computeTendrilPrediction,
   computeTendrilMonthlyPrediction,
   filterByContributor,
+  TENDRIL_CUTOFF_LABEL,
 } from "../lib/calculations";
 import type { PullRequest, RollingDataPoint } from "../lib/types";
 
@@ -345,7 +346,7 @@ export function ComparisonChart() {
         },
       },
       annotation: (() => {
-        const cutoffIdx = compareData.findIndex((d: RollingDataPoint) => d.date >= "Mar 02");
+        const cutoffIdx = compareData.findIndex((d: RollingDataPoint) => d.date >= TENDRIL_CUTOFF_LABEL);
         return {
           annotations: {
             tendrilLine: {

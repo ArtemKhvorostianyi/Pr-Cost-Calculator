@@ -11,6 +11,10 @@ import {
 import type { PullRequest, MonthlyStats, RollingDataPoint } from "./types";
 import { categorizePR } from "./github";
 
+export const TENDRIL_CUTOFF_DATE = "2026-03-02";
+export const TENDRIL_CUTOFF_LABEL = "Mar 02";
+export const TENDRIL_CUTOFF_MONTH = "2026-03";
+
 const WORKING_HOURS_PER_MONTH = 168;
 const WORKING_DAYS_PER_MONTH = 21;
 
@@ -118,7 +122,7 @@ export function getRollingAverages(
 export function computeTendrilPrediction(
   ivyData: RollingDataPoint[],
   againstData: RollingDataPoint[],
-  cutoffDate: string = "Mar 02",
+  cutoffDate: string = TENDRIL_CUTOFF_LABEL,
 ): RollingDataPoint[] {
   // Find the cutoff index (first date >= cutoffDate)
   const cutoffIdx = ivyData.findIndex((d) => d.date >= cutoffDate);
@@ -162,7 +166,7 @@ export function computeTendrilPrediction(
 export function computeTendrilMonthlyPrediction(
   ivyMonthly: MonthlyStats[],
   againstMonthly: MonthlyStats[],
-  cutoffMonth: string = "2026-03",
+  cutoffMonth: string = TENDRIL_CUTOFF_MONTH,
 ): MonthlyStats[] {
   // Compute Ivy baseline from months before cutoff
   const ivyBefore = ivyMonthly.filter((m) => m.month < cutoffMonth);

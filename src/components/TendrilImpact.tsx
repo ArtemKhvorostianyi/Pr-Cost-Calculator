@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import { loadPrefetchedPRs, categorizePR } from "../lib/github";
+import { TENDRIL_CUTOFF_DATE, TENDRIL_CUTOFF_LABEL } from "../lib/calculations";
 import type { PullRequest } from "../lib/types";
 
-const CUTOFF = new Date("2026-03-02");
+const CUTOFF = new Date(TENDRIL_CUTOFF_DATE);
 const BEFORE_START = new Date("2025-12-01");
 
 interface ImpactStats {
@@ -11,6 +13,7 @@ interface ImpactStats {
   denialRateBefore: number;
   denialRateAfter: number;
   totalMergedAfter: number;
+  dataAsOf: string;
 }
 
 function computeStats(prs: PullRequest[]): ImpactStats {
@@ -44,7 +47,10 @@ function computeStats(prs: PullRequest[]): ImpactStats {
       ? (afterPRs.filter((pr) => categorizePR(pr) === "denied").length / totalAfter) * 100
       : 0;
 
-  return { mergedPerWeekBefore, mergedPerWeekAfter, denialRateBefore, denialRateAfter, totalMergedAfter: mergedAfter };
+  const maxDate = new Date(Math.max(...prs.map((pr) => new Date(pr.created_at).getTime())));
+  const dataAsOf = format(maxDate, "MMM yyyy");
+
+  return { mergedPerWeekBefore, mergedPerWeekAfter, denialRateBefore, denialRateAfter, totalMergedAfter: mergedAfter, dataAsOf };
 }
 
 function formatDelta(value: number, inverse = false): { text: string; positive: boolean } {
@@ -87,7 +93,7 @@ export function TendrilImpact() {
       <div className="tendril-impact-header">
         <span className="tendril-impact-badge">Ivy Tendril</span>
         <span className="tendril-impact-title">Since adopting Ivy Tendril</span>
-        <span className="tendril-impact-repo">Ivy-Interactive/Ivy-Framework · from Mar 2</span>
+        <span className="tendril-impact-repo">Ivy-Interactive/Ivy-Framework · from {TENDRIL_CUTOFF_LABEL}</span>
       </div>
 
       <div className="tendril-impact-tiles">
@@ -143,6 +149,9 @@ export function TendrilImpact() {
           )}
         </div>
       </div>
+      {stats && (
+        <div className="tendril-impact-footer">Data as of {stats.dataAsOf}</div>
+      )}
     </div>
   );
 }
