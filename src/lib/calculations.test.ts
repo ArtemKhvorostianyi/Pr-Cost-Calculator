@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { filterByContributor, getMonthlyStats, getRollingAverages } from "./calculations";
 import type { PullRequest } from "./types";
-import { format } from "date-fns";
+import { PR_DATA_THROUGH } from "./github";
+import { format, subDays } from "date-fns";
 
 function makePR(overrides: Partial<PullRequest> & { user: { login: string } }): PullRequest {
   return {
@@ -35,35 +36,35 @@ describe("filterByContributor", () => {
 
 describe("getMonthlyStats", () => {
   it("calculates stats correctly for merged and denied PRs", () => {
-    const now = new Date();
-    const thisMonth = format(now, "yyyy-MM");
+    const ref = subDays(PR_DATA_THROUGH, 3);
+    const thisMonth = format(PR_DATA_THROUGH, "yyyy-MM");
 
     const prs = [
       // 3 merged PRs this month
       makePR({
         user: { login: "alice" },
         state: "closed",
-        merged_at: now.toISOString(),
-        created_at: now.toISOString(),
+        merged_at: ref.toISOString(),
+        created_at: ref.toISOString(),
       }),
       makePR({
         user: { login: "alice" },
         state: "closed",
-        merged_at: now.toISOString(),
-        created_at: now.toISOString(),
+        merged_at: ref.toISOString(),
+        created_at: ref.toISOString(),
       }),
       makePR({
         user: { login: "alice" },
         state: "closed",
-        merged_at: now.toISOString(),
-        created_at: now.toISOString(),
+        merged_at: ref.toISOString(),
+        created_at: ref.toISOString(),
       }),
       // 1 denied PR this month
       makePR({
         user: { login: "alice" },
         state: "closed",
         merged_at: null,
-        created_at: now.toISOString(),
+        created_at: ref.toISOString(),
       }),
     ];
 
@@ -89,13 +90,13 @@ describe("getMonthlyStats", () => {
   });
 
   it("excludes open PRs from stats", () => {
-    const now = new Date();
+    const ref = subDays(PR_DATA_THROUGH, 2);
     const prs = [
       makePR({
         user: { login: "alice" },
         state: "open",
         merged_at: null,
-        created_at: now.toISOString(),
+        created_at: ref.toISOString(),
       }),
     ];
     const stats = getMonthlyStats(prs, 5000, 200, 1);
@@ -115,12 +116,12 @@ describe("getMonthlyStats", () => {
 
 describe("getRollingAverages", () => {
   it("returns data points for the period", () => {
-    const now = new Date();
+    const ref = subDays(PR_DATA_THROUGH, 1);
     const prs = [
       makePR({
         user: { login: "alice" },
-        merged_at: now.toISOString(),
-        created_at: now.toISOString(),
+        merged_at: ref.toISOString(),
+        created_at: ref.toISOString(),
       }),
     ];
     const data = getRollingAverages(prs, 5000, 200, 5);
@@ -139,8 +140,7 @@ describe("getRollingAverages", () => {
   });
 
   it("returns prsMerged field with correct count", () => {
-    // Use a date 10 days ago to ensure it falls within a sampled 14-day window
-    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    const tenDaysAgo = subDays(PR_DATA_THROUGH, 10);
     const dateStr = tenDaysAgo.toISOString();
     const prs = [
       makePR({
@@ -171,7 +171,7 @@ describe("getRollingAverages", () => {
   });
 
   it("prsMerged is distinct from prsCreated", () => {
-    const tenDaysAgo = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000);
+    const tenDaysAgo = subDays(PR_DATA_THROUGH, 10);
     const dateStr = tenDaysAgo.toISOString();
     const prs = [
       makePR({
