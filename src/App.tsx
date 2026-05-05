@@ -1,7 +1,6 @@
 import { QuickCalculator } from "./components/QuickCalculator";
 import { ComparisonChart } from "./components/ComparisonChart";
 import { GitHubAuth } from "./components/GitHubAuth";
-import { TendrilImpact } from "./components/TendrilImpact";
 import "./styles/index.css";
 
 function App() {
@@ -16,8 +15,6 @@ function App() {
           <GitHubAuth />
         </div>
       </header>
-
-      <TendrilImpact />
 
       <div className="landing-grid">
         <QuickCalculator />

@@ -12,7 +12,6 @@ import {
 import { Line } from "react-chartjs-2";
 import annotationPlugin from "chartjs-plugin-annotation";
 import type { RollingDataPoint } from "../lib/types";
-import { TENDRIL_CUTOFF_LABEL } from "../lib/calculations";
 
 ChartJS.register(
   CategoryScale,
@@ -136,7 +135,7 @@ export function CostChart({
       },
       ...(isMulti
         ? (() => {
-            const cutoffIdx = labels.findIndex((l) => l >= TENDRIL_CUTOFF_LABEL);
+            const cutoffIdx = labels.findIndex((l) => l >= "Mar 02");
             return {
               annotation: {
                 annotations: {
